@@ -2,41 +2,92 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/guonaihong/gout"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
+const DATA_URL = "http://aseests.quhuitu.com/shengxiaoshuju.json"
+
 type Result struct {
-	ID           int    `gorm:"column:id" json:"id"`
-	NanShengXiao string `gorm:"column:nan_shengxiao" json:"nan"`
-	NvShengXiao  string `gorm:"column:nv_shengxiao" json:"nv"`
-	ZhiShu       string `gorm:"column:zhishu" json:"zhishu"`
-	JieGuo       string `gorm:"column:jieguo" json:"jieguo"`
-	PingShu      string `gorm:"column:pingshu" json:"pingshu"`
+	ID           int    `gorm:"column:id;primaryKey;not null" json:"id"`
+	NanShengXiao string `gorm:"column:nan_shengxiao;not null" json:"nan"`
+	NvShengXiao  string `gorm:"column:nv_shengxiao;not null" json:"nv"`
+	ZhiShu       int    `gorm:"column:zhishu;not null" json:"zhishu"`
+	JieGuo       string `gorm:"column:jieguo;not null" json:"jieguo"`
+	PingShu      string `gorm:"column:pingshu;not null" json:"pingshu"`
+}
+type ApiResult struct {
+	NanShengXiao string `gorm:"column:nan_shengxiao;not null" json:"nan"`
+	NvShengXiao  string `gorm:"column:nv_shengxiao;not null" json:"nv"`
+	ZhiShu       string `gorm:"column:zhishu;not null" json:"zhishu"`
+	JieGuo       string `gorm:"column:jieguo;not null" json:"jieguo"`
+	PingShu      string `gorm:"column:pingshu;not null" json:"pingshu"`
+}
+type ResponseBody struct {
+	Id           int    `json:"id"`
+	NanShengXiao string `json:"nan_shengxiao"`
+	NvShengXiao  string `json:"nv_shengxiao"`
+	ZhiShu       int    `json:"zhishu"`
+	JieGuo       string `json:"jieguo"`
+	PingShu      string `json:"pingshu"`
 }
 
 func main() {
-	db, err := gorm.Open(sqlite.Open("oliyo_app.sqlite"), &gorm.Config{})
+	newLogger := logger.New(
+		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
+		logger.Config{
+			SlowThreshold:             time.Second, // Slow SQL threshold
+			LogLevel:                  logger.Info, // Log level
+			IgnoreRecordNotFoundError: true,        // Ignore ErrRecordNotFound error for logger
+			Colorful:                  false,       // Disable color
+		},
+	)
+	db, err := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{
+		Logger:      newLogger,
+		PrepareStmt: true,
+	})
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	var result Result
-	if err = db.Raw("SELECT * FROM tbl_shengxiao").Scan(&result).Error; err != nil {
+	tableName := "tbl_shengxiao"
+	db.Table(tableName).AutoMigrate(&Result{})
+	rsp := []ResponseBody{}
+	err = gout.GET(DATA_URL).BindJSON(&rsp).Do()
+	if err != nil {
 		panic(err)
 	}
-	fmt.Println(result)
+	for _, value := range rsp {
+		record := Result{
+			ID:           value.Id,
+			NanShengXiao: value.NanShengXiao,
+			NvShengXiao:  value.NvShengXiao,
+			ZhiShu:       value.ZhiShu,
+			JieGuo:       value.JieGuo,
+			PingShu:      value.PingShu,
+		}
+		db.Table(tableName).Create(&record)
+	}
+	var result ApiResult
 	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": result,
-		})
-	})
 	r.GET("/", func(ctx *gin.Context) {
+		n := ctx.DefaultQuery("n", "鼠")
+		v := ctx.DefaultQuery("v", "鼠")
+		db.Table(tableName).Where("nan_shengxiao =? and nv_shengxiao=?", n, v).Scan(&result)
+
 		ctx.JSON(http.StatusOK, gin.H{
-			"message": result,
+			"code":    http.StatusOK,
+			"message": "success",
+			"data":    result,
+			"p1":      n,
+			"p2":      v,
 		})
 	})
 
