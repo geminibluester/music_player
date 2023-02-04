@@ -80,8 +80,16 @@ func main() {
 	r.GET("/", func(ctx *gin.Context) {
 		n := ctx.DefaultQuery("n", "鼠")
 		v := ctx.DefaultQuery("v", "鼠")
-		db.Table(tableName).Where("nan_shengxiao =? and nv_shengxiao=?", n, v).Scan(&result)
-
+		if err = db.Table(tableName).Where("nan_shengxiao =? and nv_shengxiao=?", n, v).Scan(&result).Error; err != nil {
+			ctx.JSON(http.StatusOK, gin.H{
+				"code":    http.StatusGone,
+				"message": "failed",
+				"data":    err.Error(),
+				"p1":      n,
+				"p2":      v,
+			})
+			ctx.Abort()
+		}
 		ctx.JSON(http.StatusOK, gin.H{
 			"code":    http.StatusOK,
 			"message": "success",
@@ -91,5 +99,5 @@ func main() {
 		})
 	})
 
-	r.Run("127.0.0.1:8080") // 监听并在 0.0.0.0:8080 上启动服务
+	r.Run() // 监听并在 0.0.0.0:8080 上启动服务
 }
