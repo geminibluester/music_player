@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/guonaihong/gout"
 	"gorm.io/driver/sqlite"
@@ -45,7 +46,7 @@ func main() {
 		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
 		logger.Config{
 			SlowThreshold:             time.Second, // Slow SQL threshold
-			LogLevel:                  logger.Info, // Log level
+			LogLevel:                  logger.Warn, // Log level
 			IgnoreRecordNotFoundError: true,        // Ignore ErrRecordNotFound error for logger
 			Colorful:                  false,       // Disable color
 		},
@@ -58,13 +59,17 @@ func main() {
 		fmt.Println(err.Error())
 	}
 	tableName := "tbl_shengxiao"
-	db.Table(tableName).AutoMigrate(&Result{})
+	fmt.Println("开始创建数据表", tableName)
+	err = db.Table(tableName).AutoMigrate(&Result{})
+	if err != nil {
+		fmt.Println("创建数据表失败", tableName)
+	}
 	rsp := []ResponseBody{}
 	err = gout.GET(DATA_URL).BindJSON(&rsp).Do()
 	if err != nil {
-		panic(err)
+		fmt.Println("获取远程数据失败", err.Error())
 	}
-	for _, value := range rsp {
+	for k, value := range rsp {
 		record := Result{
 			ID:           value.Id,
 			NanShengXiao: value.NanShengXiao,
@@ -74,9 +79,12 @@ func main() {
 			PingShu:      value.PingShu,
 		}
 		db.Table(tableName).Create(&record)
+		fmt.Printf("正在入库第%d条数据\n", k)
 	}
+	fmt.Println("远程数据入库成功")
 	var result ApiResult
 	r := gin.Default()
+	r.Use(cors.Default())
 	r.GET("/", func(ctx *gin.Context) {
 		n := ctx.DefaultQuery("n", "鼠")
 		v := ctx.DefaultQuery("v", "鼠")
