@@ -41,6 +41,9 @@ type ResponseBody struct {
 	PingShu      string `json:"pingshu"`
 }
 
+func initDb() {
+
+}
 func main() {
 	newLogger := logger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
