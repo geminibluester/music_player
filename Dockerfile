@@ -1,6 +1,6 @@
-FROM alpine:latest
-WORKDIR /root/
-COPY music_player .
-RUN chmod +x /root/music_player
+FROM golang:alpine
+WORKDIR /build/
+COPY . .
+RUN apk update && apk add libc-dev && apk add gcc
+RUN go build -ldflags "-s -w" -o app
 EXPOSE 8080
-CMD [ "/root/music_player"]
