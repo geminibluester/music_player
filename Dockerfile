@@ -4,3 +4,4 @@ COPY . .
 RUN apk update && apk add libc-dev && apk add gcc
 RUN go build -ldflags "-s -w" -o app
 EXPOSE 8080
+ENTRYPOINT [ "/build/app" ]
