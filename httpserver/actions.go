@@ -16,8 +16,6 @@ func Find(ctx *gin.Context) {
 			"code":    http.StatusGone,
 			"message": "failed",
 			"data":    err.Error(),
-			"p1":      n,
-			"p2":      v,
 		})
 		ctx.Abort()
 	}
@@ -25,7 +23,5 @@ func Find(ctx *gin.Context) {
 		"code":    http.StatusOK,
 		"message": "success",
 		"data":    result,
-		"p1":      n,
-		"p2":      v,
 	})
 }

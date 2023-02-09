@@ -4,7 +4,7 @@ var Dba DataBase
 
 func init() {
 	dsn := "file::memory:?cache=shared"
-	tableName := "tbl_shengxiao"
+	tableName := "tbl_sx"
 	Dba = DataBase{
 		Dsn:       dsn,
 		TableName: tableName,
