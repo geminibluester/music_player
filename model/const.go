@@ -1,4 +1,4 @@
-package main
+package model
 
 const DATA_URL = "http://aseests.quhuitu.com/shengxiaoshuju.json"
 

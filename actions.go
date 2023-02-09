@@ -1,6 +1,7 @@
 package main
 
 import (
+	"music_player/model"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -9,7 +10,7 @@ import (
 func find(ctx *gin.Context) {
 	n := ctx.DefaultQuery("n", "鼠")
 	v := ctx.DefaultQuery("v", "鼠")
-	err, result := dba.findByKey(n, v)
+	err, result := model.Dba.FindByKey(n, v)
 	if err != nil {
 		ctx.JSON(http.StatusOK, gin.H{
 			"code":    http.StatusGone,

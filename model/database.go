@@ -1,4 +1,4 @@
-package main
+package model
 
 import (
 	"fmt"
@@ -74,7 +74,7 @@ func (d *DataBase) getDataFromJson(db *gorm.DB, tableName string) {
 }
 
 // findByKey find the record in table by n and v
-func (d *DataBase) findByKey(n string, v string) (error, ApiResult) {
+func (d *DataBase) FindByKey(n string, v string) (error, ApiResult) {
 	var result ApiResult
 	if err := d.Db.Table(d.TableName).Where("nan_shengxiao =? and nv_shengxiao=?", n, v).Scan(&result).Error; err != nil {
 		return err, result
