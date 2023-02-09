@@ -1,7 +1,6 @@
 package model
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"time"
@@ -35,30 +34,41 @@ func (d *DataBase) init() {
 		PrepareStmt: true,
 	})
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Fatalln("数据库初始化失败", err.Error())
 	}
-	d.initTableData()
+	if !d.initTableData() {
+		log.Fatalln("init table data failed")
+	}
 }
 
 // initTableData insert remote data into table
 func (d *DataBase) initTableData() bool {
-	fmt.Println("开始创建数据表", d.TableName)
+	log.Println("开始创建数据表", d.TableName)
 	err := d.Db.Table(d.TableName).AutoMigrate(&Result{})
 	if err != nil {
-		fmt.Println("创建数据表失败", d.TableName)
+		log.Fatalln("创建数据表失败", d.TableName)
+		return false
 	}
-	d.getDataFromJson(d.Db, d.TableName)
+	log.Println("数据表成功生成")
+	err = d.getDataFromJson(d.Db, d.TableName)
+	if err != nil {
+		return false
+	}
 	return true
 }
 
 // getDataFromJson get remote json data by DATA_URL
-func (d *DataBase) getDataFromJson(db *gorm.DB, tableName string) {
+func (d *DataBase) getDataFromJson(db *gorm.DB, tableName string) error {
+	log.Println("开始获取远程数据")
 	rsp := []ResponseBody{}
 	err := gout.GET(DATA_URL).BindJSON(&rsp).Do()
 	if err != nil {
-		fmt.Println("获取远程数据失败", err.Error())
+		log.Fatal("获取远程数据失败", err.Error())
+		return err
 	}
-	for k, value := range rsp {
+	log.Println("远程数据获取成功，开始插入数据表")
+	x := 0
+	for _, value := range rsp {
 		record := Result{
 			ID:           value.Id,
 			NanShengXiao: value.NanShengXiao,
@@ -68,9 +78,11 @@ func (d *DataBase) getDataFromJson(db *gorm.DB, tableName string) {
 			PingShu:      value.PingShu,
 		}
 		d.Db.Table(d.TableName).Create(&record)
-		fmt.Printf("正在入库第%d条数据\n", k)
+		x = x + 1
+		// log.Printf("正在入库第%d条数据\n", k)
 	}
-	fmt.Println("远程数据入库成功")
+	log.Printf("远程数据插入数据表成功,共插入%d条", x)
+	return nil
 }
 
 // findByKey find the record in table by n and v

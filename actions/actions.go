@@ -1,4 +1,4 @@
-package main
+package actions
 
 import (
 	"music_player/model"
@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func find(ctx *gin.Context) {
+func Find(ctx *gin.Context) {
 	n := ctx.DefaultQuery("n", "鼠")
 	v := ctx.DefaultQuery("v", "鼠")
 	err, result := model.Dba.FindByKey(n, v)
