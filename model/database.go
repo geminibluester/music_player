@@ -27,7 +27,7 @@ func (d *DataBase) init() {
 			SlowThreshold:             time.Second, // Slow SQL threshold
 			LogLevel:                  logger.Warn, // Log level
 			IgnoreRecordNotFoundError: true,        // Ignore ErrRecordNotFound error for logger
-			Colorful:                  false,       // Disable color
+			Colorful:                  true,        // Disable color
 		},
 	)
 	d.Db, err = gorm.Open(sqlite.Open(d.Dsn), &gorm.Config{
