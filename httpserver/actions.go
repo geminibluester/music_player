@@ -1,4 +1,4 @@
-package actions
+package httpserver
 
 import (
 	"music_player/model"
