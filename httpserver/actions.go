@@ -25,3 +25,11 @@ func Find(ctx *gin.Context) {
 		"data":    result,
 	})
 }
+
+func NoRouteFound(ctx *gin.Context) {
+	ctx.JSON(http.StatusNotFound, gin.H{
+		"code":    http.StatusNotFound,
+		"message": "data not found",
+		"data":    nil,
+	})
+}

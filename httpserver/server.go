@@ -20,6 +20,7 @@ func setupRouter(mode string) *gin.Engine {
 	gin.SetMode(mode)
 	r := gin.Default()
 	r.Use(cors.Default())
+	r.NoRoute(NoRouteFound)
 	r.GET("/", Find)
 	r.GET("/favicon.ico", func(ctx *gin.Context) { ctx.String(http.StatusOK, "") })
 	return r
