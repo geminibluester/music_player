@@ -30,7 +30,7 @@ func (d *DataBase) init() {
 			Colorful:                  false,       // Disable color
 		},
 	)
-	d.Db, err = gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{
+	d.Db, err = gorm.Open(sqlite.Open(d.Dsn), &gorm.Config{
 		Logger:      newLogger,
 		PrepareStmt: true,
 	})
