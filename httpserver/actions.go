@@ -2,8 +2,8 @@ package httpserver
 
 import (
 	"music_player/app"
-	"music_player/model"
 	"music_player/pkg/e"
+	"music_player/service"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -13,7 +13,8 @@ func Find(ctx *gin.Context) {
 	appG := app.Gin{C: ctx}
 	n := ctx.DefaultQuery("n", "鼠")
 	v := ctx.DefaultQuery("v", "鼠")
-	err, result := model.Dba.FindByKey(n, v)
+	svr := service.InfoService{}
+	err, result := svr.FindByKey(n, v)
 	if err != nil {
 		appG.Response(http.StatusGone, e.ERROR, err.Error())
 	}
