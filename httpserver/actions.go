@@ -1,35 +1,36 @@
 package httpserver
 
 import (
+	"music_player/app"
 	"music_player/model"
+	"music_player/pkg/e"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 func Find(ctx *gin.Context) {
+	appG := app.Gin{C: ctx}
 	n := ctx.DefaultQuery("n", "鼠")
 	v := ctx.DefaultQuery("v", "鼠")
 	err, result := model.Dba.FindByKey(n, v)
 	if err != nil {
-		ctx.JSON(http.StatusOK, gin.H{
-			"code":    http.StatusGone,
-			"message": "failed",
-			"data":    err.Error(),
-		})
-		ctx.Abort()
+		appG.Response(http.StatusGone, e.ERROR, err.Error())
 	}
-	ctx.JSON(http.StatusOK, gin.H{
-		"code":    http.StatusOK,
-		"message": "success",
-		"data":    result,
-	})
-}
+	appG.Success(result)
 
+}
+func Create(ctx *gin.Context) {}
+func Modifan(ctx *gin.Context) {
+	ctx.String(http.StatusOK, "this is the edit page")
+}
+func Delete(ctx *gin.Context) {}
+func Reload(ctx *gin.Context) {
+	appG := app.Gin{C: ctx}
+	appG.Success("sadjfhj")
+	return
+}
 func NoRouteFound(ctx *gin.Context) {
-	ctx.JSON(http.StatusNotFound, gin.H{
-		"code":    http.StatusNotFound,
-		"message": "data not found",
-		"data":    nil,
-	})
+	appG := app.Gin{C: ctx}
+	appG.Response(http.StatusNotFound, e.ERROR_NOT_EXIST_ARTICLE, nil)
 }

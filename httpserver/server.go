@@ -23,5 +23,9 @@ func setupRouter(mode string) *gin.Engine {
 	r.NoRoute(NoRouteFound)
 	r.GET("/", Find)
 	r.GET("/favicon.ico", func(ctx *gin.Context) { ctx.String(http.StatusOK, "") })
+	manage := r.Group("/manage")
+	manage.POST("/create", Create)
+	manage.GET("/edit", Modifan)
+	manage.GET("/reload", Reload)
 	return r
 }
