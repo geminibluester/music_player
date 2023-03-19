@@ -35,3 +35,6 @@ func NoRouteFound(ctx *gin.Context) {
 	appG := app.Gin{C: ctx}
 	appG.Response(http.StatusNotFound, e.ERROR_NOT_EXIST_ARTICLE, nil)
 }
+func ChatWithAi(ctx *gin.Context) {
+	
+}
