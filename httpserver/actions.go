@@ -1,12 +1,14 @@
 package httpserver
 
 import (
+	"context"
 	"music_player/app"
 	"music_player/pkg/e"
 	"music_player/service"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	openai "github.com/sashabaranov/go-openai"
 )
 
 func Find(ctx *gin.Context) {
@@ -35,6 +37,31 @@ func NoRouteFound(ctx *gin.Context) {
 	appG.Response(http.StatusNotFound, e.ERROR_NOT_EXIST_ARTICLE, nil)
 }
 func ChatWithAi(ctx *gin.Context) {
+	token := "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"
+	client := openai.NewClient(token)
 	appG := app.Gin{C: ctx}
-	appG.Success(nil)
+	q := ctx.DefaultQuery("q", "hello")
+	if q == "" || q == "hello" {
+		appG.Response(http.StatusConflict, e.ERROR, "param error")
+		return
+	}
+	resp, err := client.CreateChatCompletion(
+		context.Background(),
+		openai.ChatCompletionRequest{
+			MaxTokens: 2048,
+			Model:     openai.GPT3Dot5Turbo,
+			Messages: []openai.ChatCompletionMessage{
+				{
+					Role:    openai.ChatMessageRoleUser,
+					Content: q,
+				},
+			},
+		},
+	)
+
+	if err != nil {
+		appG.Response(http.StatusConflict, e.ERROR, err.Error())
+		return
+	}
+	appG.Success(resp.Choices[0].Message.Content)
 }
