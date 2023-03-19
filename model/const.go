@@ -1,6 +1,6 @@
 package model
 
-const DATA_URL = "http://aseests.quhuitu.com/shengxiaoshuju.json"
+const DATA_URL = "https://raw.githubusercontent.com/geminibluester/music_player/master/shengxiaoshuju.json"
 
 type ResponseBody struct {
 	Id           int    `json:"id"`
