@@ -1,10 +1,14 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"flag"
 	"fmt"
-	"music_player/httpserver"
+	"io"
 	"os"
+
+	gogpt "github.com/sashabaranov/go-gpt3"
 )
 
 var mode string
@@ -28,5 +32,37 @@ func main() {
 		flag.Usage()
 		os.Exit(0)
 	}
-	httpserver.RunServer(address, mode)
+	chatgpt()
+	// httpserver.RunServer(address, mode)
+}
+func chatgpt() {
+	c := gogpt.NewClient("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")
+	ctx := context.Background()
+
+	req := gogpt.CompletionRequest{
+		Model:     gogpt.GPT3Ada,
+		MaxTokens: 5,
+		Prompt:    "Lorem ipsum",
+		Stream:    true,
+	}
+	stream, err := c.CreateCompletionStream(ctx, req)
+	if err != nil {
+		return
+	}
+	defer stream.Close()
+
+	for {
+		response, err := stream.Recv()
+		if errors.Is(err, io.EOF) {
+			fmt.Println("Stream finished")
+			return
+		}
+
+		if err != nil {
+			fmt.Printf("Stream error: %v\n", err)
+			return
+		}
+
+		fmt.Printf("Stream response: %v\n", response)
+	}
 }
