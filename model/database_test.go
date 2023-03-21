@@ -1,6 +1,9 @@
 package model
 
-import "testing"
+import (
+	"music_player/pkg/contant"
+	"testing"
+)
 
 func TestDb(t *testing.T) {
 	dsn := "file::memory:?cache=shared"
@@ -11,7 +14,7 @@ func TestDb(t *testing.T) {
 	}
 	Db.init()
 	Db.initTableData()
-	err, result := Db.FindByKey("鼠", "鼠")
+	result, err := Db.FindByKey(contant.DEFAULT_CHAR, contant.DEFAULT_CHAR)
 	if err != nil {
 		t.Log(err.Error())
 		t.Fail()

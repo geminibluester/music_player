@@ -1,6 +1,7 @@
 package model
 
 const DATA_URL = "https://raw.githubusercontent.com/geminibluester/music_player/master/shengxiaoshuju.json"
+const AK = "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"
 
 type ResponseBody struct {
 	Id           int    `json:"id"`

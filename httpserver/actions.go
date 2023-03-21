@@ -3,6 +3,8 @@ package httpserver
 import (
 	"context"
 	"music_player/app"
+	"music_player/model"
+	"music_player/pkg/contant"
 	"music_player/pkg/e"
 	"music_player/service"
 	"net/http"
@@ -13,10 +15,10 @@ import (
 
 func Find(ctx *gin.Context) {
 	appG := app.Gin{C: ctx}
-	n := ctx.DefaultQuery("n", "鼠")
-	v := ctx.DefaultQuery("v", "鼠")
+	n := ctx.DefaultQuery("n", contant.DEFAULT_CHAR)
+	v := ctx.DefaultQuery("v", contant.DEFAULT_CHAR)
 	svr := service.InfoService{}
-	err, result := svr.FindByKey(n, v)
+	result, err := svr.FindByKey(n, v)
 	if err != nil {
 		appG.Response(http.StatusGone, e.ERROR, err.Error())
 	}
@@ -37,8 +39,7 @@ func NoRouteFound(ctx *gin.Context) {
 	appG.Response(http.StatusNotFound, e.ERROR_NOT_EXIST_ARTICLE, nil)
 }
 func ChatWithAi(ctx *gin.Context) {
-	token := "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"
-	client := openai.NewClient(token)
+	client := openai.NewClient(model.AK)
 	appG := app.Gin{C: ctx}
 	q := ctx.DefaultQuery("q", "hello")
 	if q == "" || q == "hello" {

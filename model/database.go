@@ -51,10 +51,7 @@ func (d *DataBase) initTableData() bool {
 	}
 	log.Println("数据表成功生成")
 	err = d.getDataFromJson(d.Db, d.TableName)
-	if err != nil {
-		return false
-	}
-	return true
+	return err == nil
 }
 
 // getDataFromJson get remote json data by DATA_URL
@@ -86,10 +83,10 @@ func (d *DataBase) getDataFromJson(db *gorm.DB, tableName string) error {
 }
 
 // findByKey find the record in table by n and v
-func (d *DataBase) FindByKey(n string, v string) (error, ApiResult) {
+func (d *DataBase) FindByKey(n string, v string) (ApiResult, error) {
 	var result ApiResult
 	if err := d.Db.Table(d.TableName).Where("nan_shengxiao =? and nv_shengxiao=?", n, v).Scan(&result).Error; err != nil {
-		return err, result
+		return result, err
 	}
-	return nil, result
+	return result, nil
 }
