@@ -2,6 +2,8 @@ module music_player
 
 go 1.19
 
+require github.com/sashabaranov/go-gpt3 v1.3.3
+
 require (
 	github.com/andybalholm/brotli v1.0.4 // indirect
 	github.com/bytedance/sonic v1.7.0 // indirect
